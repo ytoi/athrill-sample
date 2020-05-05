@@ -133,10 +133,27 @@ error_exit:
 	syslog(LOG_WARNING, "%s(): ercd %d", __FUNCTION__, ercd);
     return COLOR_NONE;
 }
+double ev3_get_color_test()
+{
+	return 100.12345;
+}
+void ev3_color_test2(double tmp)
+{
+	
+}
+void ev3_color_test3(int64_t tmp)
+{
+	
+}
+extern int ev3_test_int(int p){return 1;}
+extern int ev3_test_double(double p){return 1;}
+extern int ev3_test_uint(uint32_t p ){return 1;}
+extern int ev3_test_uint64(uint64_t p){return 1;}
+
 
 uint8_t ev3_color_sensor_get_reflect(sensor_port_t port) {
 	ER ercd;
-
+	return 17;
 //	lazy_initialize();
 	CHECK_PORT(port);
 	CHECK_COND(ev3_sensor_get_type(port) == COLOR_SENSOR, E_OBJ);

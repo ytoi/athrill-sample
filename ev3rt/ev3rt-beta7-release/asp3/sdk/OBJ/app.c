@@ -17,6 +17,52 @@
 #define _debug(x)
 #endif
 
+void idle_task(intptr_t unused) {
+    while(1) {
+    	tslp_tsk(1000);
+    }
+}
+#define MAX(a,b) (( (a) > (b) ) ? (a):(b))  
+extern double ev3_get_color_test(void);
+extern void ev3_color_test2(double);
+extern int ev3_test_int(int);
+extern int ev3_test_double(double);
+extern int ev3_test_uint(uint32_t );
+extern int ev3_test_uint64(uint64_t);
+#define TEST(p) ev3_test_double(p);ev3_test_uint(p);ev3_test_int(p);ev3_test_uint64(p);
+void main_task(intptr_t unused) {
+    ev3_sensor_config(EV3_PORT_1, COLOR_SENSOR);
+    float reflect = -1*(float)ev3_color_sensor_get_reflect(EV3_PORT_1);
+   syslog(LOG_NOTICE,"%f",reflect);
+    float steer=( 0.5*reflect-0.5);
+
+    double test_d = (double)steer;
+    double test_absf = test_d;
+    test_absf = fabs(test_absf);
+    int64_t a = (int64_t)test_d;
+    int b = (int)test_d;
+    uint64_t ui64 = (uint64_t)(float)test_absf;
+    uint64_t ui64_2 = (uint64_t)test_absf;
+    double vmax = MAX(test_d, test_absf);
+    float freceip = (float)test_absf;
+    double dsns = ev3_get_color_test();
+    int64_t i_64 = (int64_t)dsns;
+    syslog(LOG_NOTICE,"div=%f ceilf.wd=%d,%ld,%d,%d,%u\n",test_absf/3.0,(int64_t)test_d,a,b,ui64,ui64_2,vmax,-vmax,1/freceip,1/test_absf);
+    ev3_color_test2(i_64);
+    ev3_color_test3(dsns*0.98);
+    TEST(test_d);
+    TEST(a);
+    TEST(b);
+    TEST(ui64);
+    TEST(i_64);
+//    float steer=( 0.5f*reflect);
+   syslog(LOG_NOTICE,"%d %lf %f",(int)steer,test_absf,reflect,i_64,(int32_t)dsns);
+   
+    while(1) {
+       tslp_tsk(100000); /* 100msec */
+    }
+}
+#if 0
 /**
  * Define the connection ports of the gyro sensor and motors.
  * By default, the Gyro Boy robot uses the following ports:
@@ -335,6 +381,7 @@ void main_task(intptr_t unused) {
     ev3_motor_config(left_motor, LARGE_MOTOR);
     ev3_motor_config(right_motor, LARGE_MOTOR);
   
+    ev3_sensor_config(EV3_PORT_2, ULTRASONIC_SENSOR);
 #if 0 
     LogDataType log_data;
     int i = 0;
@@ -368,10 +415,25 @@ void main_task(intptr_t unused) {
             integral = error + integral * 0.05;
             float steer = 0.7 * error + 0.1 * integral + 1 * (error - lasterror);
 #endif
-            ev3_motor_steer(left_motor, right_motor, 10, steer);
+//            ev3_motor_steer(left_motor, right_motor, 100, steer);
             lasterror = error;
         }
         tslp_tsk(100000); /* 100msec */
+        static int tmp = 0;
+        switch (tmp%5) {
+            case 0: ev3_led_set_color(LED_OFF);
+            break;
+            case 1: ev3_led_set_color(LED_RED);
+            break;
+            case 2: ev3_led_set_color(LED_GREEN);
+            break;
+            case 3: ev3_led_set_color(LED_ORANGE);
+            break;
+        }
+        tmp++;
+        int16_t dist=ev3_ultrasonic_sensor_get_distance(EV3_PORT_2);
+        bool_t listen=ev3_ultrasonic_sensor_listen(EV3_PORT_2);
 
     }
 }
+#endif
